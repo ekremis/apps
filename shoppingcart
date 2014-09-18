@@ -1,0 +1,151 @@
+//JSON
+var products = [{
+    "title": "Cotton T-Shirt, Medium",
+        "price": 1.99,
+        "quantity": 1,
+        "cost": 1.99
+}, {
+    "title": "Baseball Cap, One Size",
+        "price": 2.99,
+        "quantity": 2,
+        "cost": 5.98
+}, {
+    "title": "Swim Shorts, Medium",
+        "price": 3.99,
+        "quantity": 1,
+        "cost": 3.99
+}];
+
+//INPUT FORM EVENTS
+function onfocus(idxx) {
+    return function handler() {
+    $("#allproducts li:nth-child(" + idxx + ") input").val('');
+    return true;
+    }
+}
+
+function onblur(idxx) {
+    return function handler() {
+    var selector5 = "#allproducts li:nth-child(" + idxx + ") input";
+    var idxx2 = --idxx;
+    var qnt = products[idxx2].quantity;
+    var new_qnt = $(selector5).val();
+    if (typeof (new_qnt) === 'string' || new_qnt === '' || new_qnt === qnt || new_qnt < 1 || new_qnt > 10) {
+        $(selector5).val(qnt);
+    }
+    if (new_qnt !== qnt && new_qnt > 0 && new_qnt < 11) {
+        products[idxx2].quantity = parseInt(new_qnt, 10);
+        products[idxx2].cost = products[idxx2].price * products[idxx2].quantity;
+        console.log(products[idxx2].cost);
+        for (var indx in products) {
+            console.log(indx);
+            console.log(products[indx]);
+        }
+        document.getElementById("allproducts").innerHTML = '';
+        updateProducts();
+    }
+        return true;
+    }
+}
+
+//DELETE PRODUCT
+function deleteProduct(index) {
+    return function handler() {
+        products.splice(--index, 1);
+        document.getElementById("allproducts").innerHTML = '';
+        updateProducts();
+        return true;
+    }
+}
+
+//DECREASE INCREASE Functions
+function decrease(indxx) {
+    return function handler() {
+        var quantity = $("#allproducts li:nth-child(" + indxx + ") input").val();
+        quantity = parseFloat(quantity, 10);
+        var indxx2 = --indxx;
+        ++indxx;
+        if (quantity > 1) {
+            var new_quantity = --quantity;
+            products[indxx2].quantity = new_quantity;
+            products[indxx2].cost = products[indxx2].price * new_quantity;
+            document.getElementById("allproducts").innerHTML = '';
+            updateProducts();
+        }
+        return true;
+    }
+}
+
+function increase(indxx) {
+    return function handler() {
+        var quantity = $("#allproducts li:nth-child(" + indxx + ") input").val();
+        quantity = parseFloat(quantity, 10);
+        var indxx3 = --indxx;
+        ++indxx;
+        if (quantity < 10) {
+            var new_quantity = ++quantity;
+            products[indxx3].quantity = new_quantity;
+            products[indxx3].cost = products[indxx3].price * new_quantity;
+            document.getElementById("allproducts").innerHTML = '';
+            updateProducts();
+        }
+        return true;
+    }
+}
+
+//INITIALIAZE AND UPDATE PRODUCTS
+function updateProducts() {
+    for (var index1 in products) {
+        document.getElementById("allproducts").innerHTML += '<li>' +
+            ' <span>' + products[index1].title + '</span>' +
+            ' <span class="priceprefix">' + products[index1].price + '</span>' +
+            ' <span>-</span>' +
+            ' <span><input type="text" size="2" ' + ' value="' + products[index1].quantity + '"' + '/></span>' +
+            ' <span>+</span>' +
+            ' <span class="priceprefix">' + products[index1].cost.toFixed(2) + '</span>' +
+            ' <span>DELETE</span>' + '</li>';
+    }
+
+    //COMPUTE SUBTOTAL, VAT, TOTAL COST
+    var subtotal = 0.00;
+    for (var index2 in products) {
+        subtotal += parseFloat(products[index2].cost);
+    }
+    document.getElementById("subtotal").innerHTML = subtotal.toFixed(2);
+
+    var vat = 0.2 * subtotal;
+    vat = vat.toFixed(2);
+    document.getElementById("vat").innerHTML = vat;
+
+    var totalcost = 0.00;
+    totalcost = parseFloat(vat) + parseFloat(subtotal);
+    document.getElementById("totalcost").innerHTML = totalcost.toFixed(2);
+
+    //ASSIGN DELETE FUNCTIONS TO THRASH ICONS
+    // start for indx3
+    for (var indx3 in products) {
+        console.log(++indx3);
+        $("#p" + indx3).html('text' + indx3);
+        var selector = "#allproducts li:nth-child(" + indx3 + ") span:nth-child(7)";
+        console.log(selector);
+        $(selector).click(deleteProduct(indx3));
+
+        //ASSIGN INCREASE AND DECREASE FUNCTIONS IN SYMBOLS + -
+        var selector2 = "#allproducts li:nth-child(" + indx3 + ") span:nth-child(3)";
+        var selector3 = "#allproducts li:nth-child(" + indx3 + ") span:nth-child(5)";
+        $(selector2).click(decrease(indx3));
+        $(selector3).click(increase(indx3));
+        //END OF FOR    
+    
+    //ASSIGN ONFOCUS, ONBLUR, ONCHANGE FUNCTIONS TO INPUT FORMS
+    var selector4 = "#allproducts li:nth-child(" + indx3 + ") input";
+    $(selector4).focus(onfocus(indx3));
+    $(selector4).blur(onblur(indx3));
+    
+        //end for indx3
+    } 
+
+}
+
+
+updateProducts();
